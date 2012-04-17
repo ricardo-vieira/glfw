@@ -435,6 +435,16 @@ void monitor_callback(GLFWmonitor* monitor, int event)
     }
 }
 
+static void touch_callback(GLFWwindow* window, int touch, int action, double x, double y)
+{
+    printf("%08x at %0.3f: Touch %i %s at %0.3f %0.3f\n",
+           counter++,
+           glfwGetTime(),
+           touch,
+           get_action_name(action),
+           x, y);
+}
+
 int main(int argc, char** argv)
 {
     Slot* slots;
@@ -547,6 +557,7 @@ int main(int argc, char** argv)
         glfwSetKeyCallback(slots[i].window, key_callback);
         glfwSetCharCallback(slots[i].window, char_callback);
         glfwSetDropCallback(slots[i].window, drop_callback);
+        glfwSetTouchCallback(slots[i].window, touch_callback);
 
         glfwMakeContextCurrent(slots[i].window);
         glfwSwapInterval(1);
