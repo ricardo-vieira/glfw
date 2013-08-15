@@ -191,6 +191,8 @@ typedef struct _GLFWlibraryX11
         char*       string;
     } selection;
 
+    char*			keyName;
+
     struct {
         int         present;
         int         fd;
