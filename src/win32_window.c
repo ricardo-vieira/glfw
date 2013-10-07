@@ -1289,19 +1289,19 @@ const char*_glfwPlatformGetKeyName(int key)
 
                 switch(_glfw.win32.keyName[0])
                 {
-                    case ' ': 	return "SPACE";
-                    case '-': 	return "MINUS";
-                    case '=': 	return "EQUAL";
-                    case '[': 	return "LEFT BRACKET";
-                    case ']':	return "RIGHT BRACKET";
-                    case '\\':	return "BACKSLASH";
+                    case ' ':   return "SPACE";
+                    case '-':   return "MINUS";
+                    case '=':   return "EQUAL";
+                    case '[':   return "LEFT BRACKET";
+                    case ']':   return "RIGHT BRACKET";
+                    case '\\':  return "BACKSLASH";
                     case ';':   return "SEMICOLON";
                     case '\'':  return "APOSTROPHE";
-                    case '`': 	return "GRAVE ACCENT";
+                    case '`':   return "GRAVE ACCENT";
                     case ',':   return "COMMA";
                     case '.':   return "PERIOD";
                     case '/':   return "SLASH";
-                    default: 	break;
+                    default:    break;
                 }
             }
 

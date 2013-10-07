@@ -1179,7 +1179,7 @@ const char* _glfwPlatformGetKeyName(int key)
         case GLFW_KEY_SPACE:         vKey = 49; break;
         case GLFW_KEY_WORLD_1:       vKey = 50; break;
     }
-    
+
     if (vKey)
     {
         // get the current keyboard, need to do this every time
@@ -1187,21 +1187,21 @@ const char* _glfwPlatformGetKeyName(int key)
         TISInputSourceRef       tisInputSource  = TISCopyCurrentKeyboardInputSource();
         CFDataRef               uchr            = (CFDataRef)TISGetInputSourceProperty(tisInputSource, kTISPropertyUnicodeKeyLayoutData);
         const UCKeyboardLayout  *kbLayoutUC     = (const UCKeyboardLayout*)CFDataGetBytePtr(uchr);
-        
+
         if (kbLayoutUC)
         {
             UInt32 deadKeyState = 0;
             UniCharCount maxStringLength = 255;
             UniCharCount actualStringLength = 0;
             UniChar unicodeString[maxStringLength];
-            
+
             OSStatus status = UCKeyTranslate(kbLayoutUC,
                                              vKey, kUCKeyActionDown, 0,
                                              LMGetKbdType(), 0,
                                              &deadKeyState,
                                              maxStringLength,
                                              &actualStringLength, unicodeString);
-            
+
             if (actualStringLength == 0 && deadKeyState)
             {
                 status = UCKeyTranslate(kbLayoutUC,
@@ -1215,7 +1215,7 @@ const char* _glfwPlatformGetKeyName(int key)
             {
                 NSString* tempNS = [[NSString stringWithCharacters:unicodeString length:(NSUInteger)actualStringLength] uppercaseString];
                 _glfw.ns.keyName = strdup([tempNS UTF8String]);
-                
+
                 // need to ensure common chars are interpreted similarily:
                 int length = strlen(_glfw.ns.keyName);
                 if(1==length)
@@ -1225,32 +1225,30 @@ const char* _glfwPlatformGetKeyName(int key)
                         // Capitalize
                         _glfw.ns.keyName[0] += 'A'-'a';
                     }
-                    
+
                     switch(_glfw.ns.keyName[0])
                     {
-                        case ' ': 	return "SPACE";
-                        case '-': 	return "MINUS";
-                        case '=': 	return "EQUAL";
-                        case '[': 	return "LEFT BRACKET";
-                        case ']':	return "RIGHT BRACKET";
-                        case '\\':	return "BACKSLASH";
+                        case ' ':     return "SPACE";
+                        case '-':     return "MINUS";
+                        case '=':     return "EQUAL";
+                        case '[':     return "LEFT BRACKET";
+                        case ']':    return "RIGHT BRACKET";
+                        case '\\':    return "BACKSLASH";
                         case ';':   return "SEMICOLON";
                         case '\'':  return "APOSTROPHE";
-                        case '`': 	return "GRAVE ACCENT";
+                        case '`':     return "GRAVE ACCENT";
                         case ',':   return "COMMA";
                         case '.':   return "PERIOD";
                         case '/':   return "SLASH";
-                        default: 	break;
+                        default:     break;
                     }
                 }
-                
-                
+
                 return _glfw.ns.keyName;
             }
         }
     }
-    
-    
+
     return _glfwGetKeyName(key);
 }
 

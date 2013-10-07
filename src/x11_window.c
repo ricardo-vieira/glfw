@@ -47,11 +47,11 @@
 
 typedef struct
 {
-	unsigned long flags;
-	unsigned long functions;
-	unsigned long decorations;
-	long input_mode;
-	unsigned long status;
+    unsigned long flags;
+    unsigned long functions;
+    unsigned long decorations;
+    long input_mode;
+    unsigned long status;
 } MotifWmHints;
 
 #define MWM_HINTS_DECORATIONS (1L << 1)
@@ -105,55 +105,55 @@ static GLboolean isKeyPrintable(int key)
 {
     switch (key)
     {
-		case GLFW_KEY_A:
-		case GLFW_KEY_B:
-		case GLFW_KEY_C:
-		case GLFW_KEY_D:
-		case GLFW_KEY_E:
-		case GLFW_KEY_F:
-		case GLFW_KEY_G:
-		case GLFW_KEY_H:
-		case GLFW_KEY_I:
-		case GLFW_KEY_J:
-		case GLFW_KEY_K:
-		case GLFW_KEY_L:
-		case GLFW_KEY_M:
-		case GLFW_KEY_N:
-		case GLFW_KEY_O:
-		case GLFW_KEY_P:
-		case GLFW_KEY_Q:
-		case GLFW_KEY_R:
-		case GLFW_KEY_S:
-		case GLFW_KEY_T:
-		case GLFW_KEY_U:
-		case GLFW_KEY_V:
-		case GLFW_KEY_W:
-		case GLFW_KEY_X:
-		case GLFW_KEY_Y:
-		case GLFW_KEY_Z:
-		case GLFW_KEY_1:
-		case GLFW_KEY_2:
-		case GLFW_KEY_3:
-		case GLFW_KEY_4:
-		case GLFW_KEY_5:
-		case GLFW_KEY_6:
-		case GLFW_KEY_7:
-		case GLFW_KEY_8:
-		case GLFW_KEY_9:
-		case GLFW_KEY_0:
-		case GLFW_KEY_SPACE:
-		case GLFW_KEY_MINUS:
-		case GLFW_KEY_EQUAL:
-		case GLFW_KEY_LEFT_BRACKET:
-		case GLFW_KEY_RIGHT_BRACKET:
-		case GLFW_KEY_BACKSLASH:
-		case GLFW_KEY_SEMICOLON:
-		case GLFW_KEY_APOSTROPHE:
-		case GLFW_KEY_GRAVE_ACCENT:
-		case GLFW_KEY_COMMA:
-		case GLFW_KEY_PERIOD:
-		case GLFW_KEY_SLASH:
-		case GLFW_KEY_WORLD_1:
+        case GLFW_KEY_A:
+        case GLFW_KEY_B:
+        case GLFW_KEY_C:
+        case GLFW_KEY_D:
+        case GLFW_KEY_E:
+        case GLFW_KEY_F:
+        case GLFW_KEY_G:
+        case GLFW_KEY_H:
+        case GLFW_KEY_I:
+        case GLFW_KEY_J:
+        case GLFW_KEY_K:
+        case GLFW_KEY_L:
+        case GLFW_KEY_M:
+        case GLFW_KEY_N:
+        case GLFW_KEY_O:
+        case GLFW_KEY_P:
+        case GLFW_KEY_Q:
+        case GLFW_KEY_R:
+        case GLFW_KEY_S:
+        case GLFW_KEY_T:
+        case GLFW_KEY_U:
+        case GLFW_KEY_V:
+        case GLFW_KEY_W:
+        case GLFW_KEY_X:
+        case GLFW_KEY_Y:
+        case GLFW_KEY_Z:
+        case GLFW_KEY_1:
+        case GLFW_KEY_2:
+        case GLFW_KEY_3:
+        case GLFW_KEY_4:
+        case GLFW_KEY_5:
+        case GLFW_KEY_6:
+        case GLFW_KEY_7:
+        case GLFW_KEY_8:
+        case GLFW_KEY_9:
+        case GLFW_KEY_0:
+        case GLFW_KEY_SPACE:
+        case GLFW_KEY_MINUS:
+        case GLFW_KEY_EQUAL:
+        case GLFW_KEY_LEFT_BRACKET:
+        case GLFW_KEY_RIGHT_BRACKET:
+        case GLFW_KEY_BACKSLASH:
+        case GLFW_KEY_SEMICOLON:
+        case GLFW_KEY_APOSTROPHE:
+        case GLFW_KEY_GRAVE_ACCENT:
+        case GLFW_KEY_COMMA:
+        case GLFW_KEY_PERIOD:
+        case GLFW_KEY_SLASH:
+        case GLFW_KEY_WORLD_1:
             return GL_TRUE;
     }
 
@@ -1287,21 +1287,21 @@ const char*_glfwPlatformGetKeyName(int key)
 
     if (isKeyPrintable(key))
     {
-    	// We now need to search for the keyCode.
-    	// This could be sped up through a table, but this function should not be called that frequently
+        // We now need to search for the keyCode.
+        // This could be sped up through a table, but this function should not be called that frequently
         // Valid key code range is  [8,255], according to the XLib manual
         for(keyCode = 8; keyCode<=255; ++keyCode)
         {
-        	if( translateKey(keyCode) == key )
-        	{
-        		KeyCodeFound = keyCode;
-        		break;
-        	}
+            if( translateKey(keyCode) == key )
+            {
+                KeyCodeFound = keyCode;
+                break;
+            }
         }
 
         if(KeyCodeFound>=0)
         {
-        	// get keyboard group in use via state
+            // get keyboard group in use via state
             XkbStateRec state;
             XkbGetState(_glfw.x11.display, XkbUseCoreKbd, &state);
 
@@ -1309,50 +1309,50 @@ const char*_glfwPlatformGetKeyName(int key)
             ucsChar = _glfwKeySym2Unicode( keySym );
             if( ucsChar > 0 )
             {
-            	// get current locale and set to for wctomb
-            	locale = setlocale(LC_CTYPE,NULL);
-            	setlocale(LC_CTYPE,"");
-            	if(!_glfw.x11.keyName)
-            	{
-            		// only need to allocate once
-            		_glfw.x11.keyName = calloc(MB_CUR_MAX+1,sizeof(char));
-            	}
-				length = wctomb(_glfw.x11.keyName, ucsChar);
+                // get current locale and set to for wctomb
+                locale = setlocale(LC_CTYPE,NULL);
+                setlocale(LC_CTYPE,"");
+                if(!_glfw.x11.keyName)
+                {
+                    // only need to allocate once
+                    _glfw.x11.keyName = calloc(MB_CUR_MAX+1,sizeof(char));
+                }
+                length = wctomb(_glfw.x11.keyName, ucsChar);
 
-				// reset locale
-				setlocale(LC_CTYPE,locale);
+                // reset locale
+                setlocale(LC_CTYPE,locale);
 
-				_glfw.x11.keyName[length]='\0';
-				if(length>0)
-				{
-					// need to ensure common chars are interpreted similarily:
-					if(length=1)
-					{
-						if(_glfw.x11.keyName[0]>='a' && _glfw.x11.keyName[0]<='z')
-						{
-							// Capitalize
-							_glfw.x11.keyName[0] += 'A'-'a';
-						}
+                _glfw.x11.keyName[length]='\0';
+                if(length>0)
+                {
+                    // need to ensure common chars are interpreted similarily:
+                    if(length=1)
+                    {
+                        if(_glfw.x11.keyName[0]>='a' && _glfw.x11.keyName[0]<='z')
+                        {
+                            // Capitalize
+                            _glfw.x11.keyName[0] += 'A'-'a';
+                        }
 
-						switch(_glfw.x11.keyName[0])
-						{
-							case ' ': 	return "SPACE";
-							case '-': 	return "MINUS";
-							case '=': 	return "EQUAL";
-							case '[': 	return "LEFT BRACKET";
-							case ']':	return "RIGHT BRACKET";
-							case '\\':	return "BACKSLASH";
-							case ';':   return "SEMICOLON";
-							case '\'':  return "APOSTROPHE";
-							case '`': 	return "GRAVE ACCENT";
-							case ',':   return "COMMA";
-							case '.':   return "PERIOD";
-							case '/':   return "SLASH";
-							default: 	break;
-						}
-					}
-					return _glfw.x11.keyName;
-				}
+                        switch(_glfw.x11.keyName[0])
+                        {
+                            case ' ':   return "SPACE";
+                            case '-':   return "MINUS";
+                            case '=':   return "EQUAL";
+                            case '[':   return "LEFT BRACKET";
+                            case ']':   return "RIGHT BRACKET";
+                            case '\\':  return "BACKSLASH";
+                            case ';':   return "SEMICOLON";
+                            case '\'':  return "APOSTROPHE";
+                            case '`':   return "GRAVE ACCENT";
+                            case ',':   return "COMMA";
+                            case '.':   return "PERIOD";
+                            case '/':   return "SLASH";
+                            default:    break;
+                        }
+                    }
+                    return _glfw.x11.keyName;
+                }
             }
 
         }
