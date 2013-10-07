@@ -99,6 +99,67 @@ static int translateChar(XKeyEvent* event)
     return (int) _glfwKeySym2Unicode(keysym);
 }
 
+// Returns whether the specified key is printable
+//
+static GLboolean isKeyPrintable(int key)
+{
+    switch (key)
+    {
+		case GLFW_KEY_A:
+		case GLFW_KEY_B:
+		case GLFW_KEY_C:
+		case GLFW_KEY_D:
+		case GLFW_KEY_E:
+		case GLFW_KEY_F:
+		case GLFW_KEY_G:
+		case GLFW_KEY_H:
+		case GLFW_KEY_I:
+		case GLFW_KEY_J:
+		case GLFW_KEY_K:
+		case GLFW_KEY_L:
+		case GLFW_KEY_M:
+		case GLFW_KEY_N:
+		case GLFW_KEY_O:
+		case GLFW_KEY_P:
+		case GLFW_KEY_Q:
+		case GLFW_KEY_R:
+		case GLFW_KEY_S:
+		case GLFW_KEY_T:
+		case GLFW_KEY_U:
+		case GLFW_KEY_V:
+		case GLFW_KEY_W:
+		case GLFW_KEY_X:
+		case GLFW_KEY_Y:
+		case GLFW_KEY_Z:
+		case GLFW_KEY_1:
+		case GLFW_KEY_2:
+		case GLFW_KEY_3:
+		case GLFW_KEY_4:
+		case GLFW_KEY_5:
+		case GLFW_KEY_6:
+		case GLFW_KEY_7:
+		case GLFW_KEY_8:
+		case GLFW_KEY_9:
+		case GLFW_KEY_0:
+		case GLFW_KEY_SPACE:
+		case GLFW_KEY_MINUS:
+		case GLFW_KEY_EQUAL:
+		case GLFW_KEY_LEFT_BRACKET:
+		case GLFW_KEY_RIGHT_BRACKET:
+		case GLFW_KEY_BACKSLASH:
+		case GLFW_KEY_SEMICOLON:
+		case GLFW_KEY_APOSTROPHE:
+		case GLFW_KEY_GRAVE_ACCENT:
+		case GLFW_KEY_COMMA:
+		case GLFW_KEY_PERIOD:
+		case GLFW_KEY_SLASH:
+		case GLFW_KEY_WORLD_1:
+            return GL_TRUE;
+    }
+
+    return GL_FALSE;
+}
+
 // Create the X11 window (and its colormap)
 //
 static GLboolean createWindow(_GLFWwindow* window,
@@ -1221,65 +1282,10 @@ void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)
 const char*_glfwPlatformGetKeyName(int key)
 {
     int KeyCodeFound = -1;
-    int printable = 0;
     int keySym, ucsChar, keyCode, length;
     char* locale;
 
-    switch(key)
-    {
-		case GLFW_KEY_A:					printable=1;	break;
-		case GLFW_KEY_B:                printable=1;	break;
-		case GLFW_KEY_C:                printable=1;	break;
-		case GLFW_KEY_D:                printable=1;	break;
-		case GLFW_KEY_E:                printable=1;	break;
-		case GLFW_KEY_F:                printable=1;	break;
-		case GLFW_KEY_G:                printable=1;	break;
-		case GLFW_KEY_H:                printable=1;	break;
-		case GLFW_KEY_I:                printable=1;	break;
-		case GLFW_KEY_J:                printable=1;	break;
-		case GLFW_KEY_K:                printable=1;	break;
-		case GLFW_KEY_L:                printable=1;	break;
-		case GLFW_KEY_M:                printable=1;	break;
-		case GLFW_KEY_N:                printable=1;	break;
-		case GLFW_KEY_O:                printable=1;	break;
-		case GLFW_KEY_P:                printable=1;	break;
-		case GLFW_KEY_Q:                printable=1;	break;
-		case GLFW_KEY_R:                printable=1;	break;
-		case GLFW_KEY_S:                printable=1;	break;
-		case GLFW_KEY_T:                printable=1;	break;
-		case GLFW_KEY_U:                printable=1;	break;
-		case GLFW_KEY_V:                printable=1;	break;
-		case GLFW_KEY_W:                printable=1;	break;
-		case GLFW_KEY_X:                printable=1;	break;
-		case GLFW_KEY_Y:                printable=1;	break;
-		case GLFW_KEY_Z:                printable=1;	break;
-		case GLFW_KEY_1:                printable=1;	break;
-		case GLFW_KEY_2:                printable=1;	break;
-		case GLFW_KEY_3:                printable=1;	break;
-		case GLFW_KEY_4:                printable=1;	break;
-		case GLFW_KEY_5:                printable=1;	break;
-		case GLFW_KEY_6:                printable=1;	break;
-		case GLFW_KEY_7:                printable=1;	break;
-		case GLFW_KEY_8:                printable=1;	break;
-		case GLFW_KEY_9:                printable=1;	break;
-		case GLFW_KEY_0:                printable=1;	break;
-		case GLFW_KEY_SPACE:            printable=1;	break;
-		case GLFW_KEY_MINUS:            printable=1;	break;
-		case GLFW_KEY_EQUAL:            printable=1;	break;
-		case GLFW_KEY_LEFT_BRACKET:     printable=1;	break;
-		case GLFW_KEY_RIGHT_BRACKET:    printable=1;	break;
-		case GLFW_KEY_BACKSLASH:        printable=1;	break;
-		case GLFW_KEY_SEMICOLON:        printable=1;	break;
-		case GLFW_KEY_APOSTROPHE:       printable=1;	break;
-		case GLFW_KEY_GRAVE_ACCENT:     printable=1;	break;
-		case GLFW_KEY_COMMA:            printable=1;	break;
-		case GLFW_KEY_PERIOD:           printable=1;	break;
-		case GLFW_KEY_SLASH:            printable=1;	break;
-		case GLFW_KEY_WORLD_1: 			printable=1;	break;
-		default:                		break;
-    }
-
-    if (printable)
+    if (isKeyPrintable(key))
     {
     	// We now need to search for the keyCode.
     	// This could be sped up through a table, but this function should not be called that frequently
