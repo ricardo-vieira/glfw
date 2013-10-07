@@ -1326,7 +1326,7 @@ const char*_glfwPlatformGetKeyName(int key)
                 if(length>0)
                 {
                     // need to ensure common chars are interpreted similarily:
-                    if(length=1)
+                    if(length==1)
                     {
                         if(_glfw.x11.keyName[0]>='a' && _glfw.x11.keyName[0]<='z')
                         {
