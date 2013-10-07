@@ -351,23 +351,6 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
         case VK_RWIN:          return GLFW_KEY_RIGHT_SUPER;
         case VK_APPS:          return GLFW_KEY_MENU;
 
-        // Numeric keypad
-        case VK_NUMPAD0:       return GLFW_KEY_KP_0;
-        case VK_NUMPAD1:       return GLFW_KEY_KP_1;
-        case VK_NUMPAD2:       return GLFW_KEY_KP_2;
-        case VK_NUMPAD3:       return GLFW_KEY_KP_3;
-        case VK_NUMPAD4:       return GLFW_KEY_KP_4;
-        case VK_NUMPAD5:       return GLFW_KEY_KP_5;
-        case VK_NUMPAD6:       return GLFW_KEY_KP_6;
-        case VK_NUMPAD7:       return GLFW_KEY_KP_7;
-        case VK_NUMPAD8:       return GLFW_KEY_KP_8;
-        case VK_NUMPAD9:       return GLFW_KEY_KP_9;
-        case VK_DIVIDE:        return GLFW_KEY_KP_DIVIDE;
-        case VK_MULTIPLY:      return GLFW_KEY_KP_MULTIPLY;
-        case VK_SUBTRACT:      return GLFW_KEY_KP_SUBTRACT;
-        case VK_ADD:           return GLFW_KEY_KP_ADD;
-        case VK_DECIMAL:       return GLFW_KEY_KP_DECIMAL;
-
         // printables handled via virtual keys
         case VK_SPACE:         return GLFW_KEY_SPACE;
         case 0xDC:             return GLFW_KEY_BACKSLASH;
