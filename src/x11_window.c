@@ -1287,54 +1287,56 @@ const char*_glfwPlatformGetKeyName(int key)
 
     if (isKeyPrintable(key))
     {
-        // We now need to search for the keyCode.
-        // This could be sped up through a table, but this function should not be called that frequently
-        // Valid key code range is  [8,255], according to the XLib manual
-        for(keyCode = 8; keyCode<=255; ++keyCode)
+        // We now need to search for the keyCode
+        // This could be sped up through a table, but this function should not
+        // be called that frequently
+        // Valid key code range is [8,255], according to the Xlib manual
+        for (keyCode = 8;  keyCode <= 255;  keyCode++)
         {
-            if( translateKey(keyCode) == key )
+            if (translateKey(keyCode) == key)
             {
                 KeyCodeFound = keyCode;
                 break;
             }
         }
 
-        if(KeyCodeFound>=0)
+        if (KeyCodeFound >= 0)
         {
-            // get keyboard group in use via state
+            // Get keyboard group in use via state
             XkbStateRec state;
             XkbGetState(_glfw.x11.display, XkbUseCoreKbd, &state);
 
             keySym = XkbKeycodeToKeysym(_glfw.x11.display, KeyCodeFound, state.group, 0);
-            ucsChar = _glfwKeySym2Unicode( keySym );
-            if( ucsChar > 0 )
+            ucsChar = _glfwKeySym2Unicode(keySym);
+            if (ucsChar > 0)
             {
-                // get current locale and set to for wctomb
-                locale = setlocale(LC_CTYPE,NULL);
-                setlocale(LC_CTYPE,"");
-                if(!_glfw.x11.keyName)
+                // Get current locale and set to for wctomb
+                locale = setlocale(LC_CTYPE, NULL);
+                setlocale(LC_CTYPE, "");
+                if (!_glfw.x11.keyName)
                 {
-                    // only need to allocate once
-                    _glfw.x11.keyName = calloc(MB_CUR_MAX+1,sizeof(char));
+                    // Only need to allocate once
+                    _glfw.x11.keyName = calloc(MB_CUR_MAX + 1, sizeof(char));
                 }
+
                 length = wctomb(_glfw.x11.keyName, ucsChar);
 
-                // reset locale
-                setlocale(LC_CTYPE,locale);
+                // Reset locale
+                setlocale(LC_CTYPE, locale);
 
-                _glfw.x11.keyName[length]='\0';
-                if(length>0)
+                _glfw.x11.keyName[length] = '\0';
+                if (length > 0)
                 {
                     // need to ensure common chars are interpreted similarily:
-                    if(length==1)
+                    if (length == 1)
                     {
-                        if(_glfw.x11.keyName[0]>='a' && _glfw.x11.keyName[0]<='z')
+                        if (_glfw.x11.keyName[0] >= 'a' && _glfw.x11.keyName[0] <= 'z')
                         {
                             // Capitalize
-                            _glfw.x11.keyName[0] += 'A'-'a';
+                            _glfw.x11.keyName[0] += 'A' - 'a';
                         }
 
-                        switch(_glfw.x11.keyName[0])
+                        switch (_glfw.x11.keyName[0])
                         {
                             case ' ':   return "SPACE";
                             case '-':   return "MINUS";
@@ -1348,9 +1350,9 @@ const char*_glfwPlatformGetKeyName(int key)
                             case ',':   return "COMMA";
                             case '.':   return "PERIOD";
                             case '/':   return "SLASH";
-                            default:    break;
                         }
                     }
+
                     return _glfw.x11.keyName;
                 }
             }

@@ -1181,16 +1181,15 @@ void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)
 
 const char* _glfwPlatformGetKeyName(int key)
 {
-    // free temp keyname
     free(_glfw.ns.keyName);
-    _glfw.ns.keyName = 0;
+    _glfw.ns.keyName = NULL;
 
-    // Try to translate virtual key mac os x style
+    // Try to translate to OS X style virtual key
     const UInt16 vKey = virtualKeyFor(key);
     if (vKey)
     {
-        // get the current keyboard, need to do this every time
-        // in case keyboard has changed
+        // Get the current keyboard
+        // Need to do this every time in case keyboard has changed
         TISInputSourceRef       tisInputSource  = TISCopyCurrentKeyboardInputSource();
         CFDataRef               uchr            = (CFDataRef)TISGetInputSourceProperty(tisInputSource, kTISPropertyUnicodeKeyLayoutData);
         const UCKeyboardLayout  *kbLayoutUC     = (const UCKeyboardLayout*)CFDataGetBytePtr(uchr);
@@ -1218,22 +1217,22 @@ const char* _glfwPlatformGetKeyName(int key)
                                         maxStringLength,
                                         &actualStringLength, unicodeString);
             }
+
             if (actualStringLength > 0 && status == noErr)
             {
                 NSString* tempNS = [[NSString stringWithCharacters:unicodeString length:(NSUInteger)actualStringLength] uppercaseString];
                 _glfw.ns.keyName = strdup([tempNS UTF8String]);
 
-                // need to ensure common chars are interpreted similarily:
-                int length = strlen(_glfw.ns.keyName);
-                if(1==length)
+                // Need to ensure common chars are interpreted similarily:
+                if (strlen(_glfw.ns.keyName) == 1)
                 {
-                    if(_glfw.ns.keyName[0]>='a' && _glfw.ns.keyName[0]<='z')
+                    if (_glfw.ns.keyName[0] >= 'a' && _glfw.ns.keyName[0] <= 'z')
                     {
                         // Capitalize
-                        _glfw.ns.keyName[0] += 'A'-'a';
+                        _glfw.ns.keyName[0] += 'A' - 'a';
                     }
 
-                    switch(_glfw.ns.keyName[0])
+                    switch (_glfw.ns.keyName[0])
                     {
                         case ' ':     return "SPACE";
                         case '-':     return "MINUS";
@@ -1247,7 +1246,6 @@ const char* _glfwPlatformGetKeyName(int key)
                         case ',':   return "COMMA";
                         case '.':   return "PERIOD";
                         case '/':   return "SLASH";
-                        default:     break;
                     }
                 }
 
