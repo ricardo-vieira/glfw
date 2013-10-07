@@ -1186,72 +1186,74 @@ const char* _glfwPlatformGetKeyName(int key)
 
     // Try to translate to OS X style virtual key
     const UInt16 vKey = virtualKeyFor(key);
-    if (vKey)
+    if (!vKey)
+        return _glfwGetKeyName(key);
+
+    // Get the current keyboard
+    // Need to do this every time in case keyboard has changed
+    TISInputSourceRef tisInputSource = TISCopyCurrentKeyboardInputSource();
+    CFDataRef uchr = (CFDataRef) TISGetInputSourceProperty(tisInputSource,
+                                                           kTISPropertyUnicodeKeyLayoutData);
+
+    const UCKeyboardLayout* kbLayoutUC = (const UCKeyboardLayout*) CFDataGetBytePtr(uchr);
+    if (!kbLayoutUC)
+        return _glfwGetKeyName(key);
+
+    UInt32 deadKeyState = 0;
+    UniCharCount maxStringLength = 255;
+    UniCharCount actualStringLength = 0;
+    UniChar unicodeString[maxStringLength];
+
+    OSStatus status = UCKeyTranslate(kbLayoutUC,
+                                     vKey, kUCKeyActionDown, 0,
+                                     LMGetKbdType(), 0,
+                                     &deadKeyState,
+                                     maxStringLength,
+                                     &actualStringLength, unicodeString);
+
+    if (actualStringLength == 0 && deadKeyState)
     {
-        // Get the current keyboard
-        // Need to do this every time in case keyboard has changed
-        TISInputSourceRef       tisInputSource  = TISCopyCurrentKeyboardInputSource();
-        CFDataRef               uchr            = (CFDataRef)TISGetInputSourceProperty(tisInputSource, kTISPropertyUnicodeKeyLayoutData);
-        const UCKeyboardLayout  *kbLayoutUC     = (const UCKeyboardLayout*)CFDataGetBytePtr(uchr);
+        status = UCKeyTranslate(kbLayoutUC,
+                                kVK_Space, kUCKeyActionDown, 0,
+                                LMGetKbdType(), 0,
+                                &deadKeyState,
+                                maxStringLength,
+                                &actualStringLength, unicodeString);
+    }
 
-        if (kbLayoutUC)
+    if (actualStringLength > 0 && status == noErr)
+    {
+        NSString* tempNS = [[NSString stringWithCharacters:unicodeString
+                                                    length:(NSUInteger)actualStringLength] uppercaseString];
+        _glfw.ns.keyName = strdup([tempNS UTF8String]);
+
+        // Need to ensure common chars are interpreted similarily:
+        if (strlen(_glfw.ns.keyName) == 1)
         {
-            UInt32 deadKeyState = 0;
-            UniCharCount maxStringLength = 255;
-            UniCharCount actualStringLength = 0;
-            UniChar unicodeString[maxStringLength];
-
-            OSStatus status = UCKeyTranslate(kbLayoutUC,
-                                             vKey, kUCKeyActionDown, 0,
-                                             LMGetKbdType(), 0,
-                                             &deadKeyState,
-                                             maxStringLength,
-                                             &actualStringLength, unicodeString);
-
-            if (actualStringLength == 0 && deadKeyState)
+            if (_glfw.ns.keyName[0] >= 'a' && _glfw.ns.keyName[0] <= 'z')
             {
-                status = UCKeyTranslate(kbLayoutUC,
-                                        kVK_Space, kUCKeyActionDown, 0,
-                                        LMGetKbdType(), 0,
-                                        &deadKeyState,
-                                        maxStringLength,
-                                        &actualStringLength, unicodeString);
+                // Capitalize
+                _glfw.ns.keyName[0] += 'A' - 'a';
             }
 
-            if (actualStringLength > 0 && status == noErr)
+            switch (_glfw.ns.keyName[0])
             {
-                NSString* tempNS = [[NSString stringWithCharacters:unicodeString length:(NSUInteger)actualStringLength] uppercaseString];
-                _glfw.ns.keyName = strdup([tempNS UTF8String]);
-
-                // Need to ensure common chars are interpreted similarily:
-                if (strlen(_glfw.ns.keyName) == 1)
-                {
-                    if (_glfw.ns.keyName[0] >= 'a' && _glfw.ns.keyName[0] <= 'z')
-                    {
-                        // Capitalize
-                        _glfw.ns.keyName[0] += 'A' - 'a';
-                    }
-
-                    switch (_glfw.ns.keyName[0])
-                    {
-                        case ' ':     return "SPACE";
-                        case '-':     return "MINUS";
-                        case '=':     return "EQUAL";
-                        case '[':     return "LEFT BRACKET";
-                        case ']':    return "RIGHT BRACKET";
-                        case '\\':    return "BACKSLASH";
-                        case ';':   return "SEMICOLON";
-                        case '\'':  return "APOSTROPHE";
-                        case '`':     return "GRAVE ACCENT";
-                        case ',':   return "COMMA";
-                        case '.':   return "PERIOD";
-                        case '/':   return "SLASH";
-                    }
-                }
-
-                return _glfw.ns.keyName;
+                case ' ':   return "SPACE";
+                case '-':   return "MINUS";
+                case '=':   return "EQUAL";
+                case '[':   return "LEFT BRACKET";
+                case ']':   return "RIGHT BRACKET";
+                case '\\':  return "BACKSLASH";
+                case ';':   return "SEMICOLON";
+                case '\'':  return "APOSTROPHE";
+                case '`':   return "GRAVE ACCENT";
+                case ',':   return "COMMA";
+                case '.':   return "PERIOD";
+                case '/':   return "SLASH";
             }
         }
+
+        return _glfw.ns.keyName;
     }
 
     return _glfwGetKeyName(key);
