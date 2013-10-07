@@ -704,6 +704,11 @@ int _glfwCompareVideoModes(const GLFWvidmode* first, const GLFWvidmode* second);
  */
 void _glfwSplitBPP(int bpp, int* red, int* green, int* blue);
 
+/*! @brief Returns the fallback name of the specified key.
+ *  @ingroup utility
+ */
+const char* _glfwGetKeyName(int key);
+
 /*! @brief Searches an extension string for the specified extension.
  *  @param[in] string The extension string to search.
  *  @param[in] extensions The extension to search for.
