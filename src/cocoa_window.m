@@ -114,6 +114,68 @@ static NSRect convertRectToBacking(_GLFWwindow* window, NSRect contentRect)
         return contentRect;
 }
 
+// Returns the OS X virtual key for the specified GLFW key
+//
+static UInt16 virtualKeyFor(int key)
+{
+    switch (key)
+    {
+        case GLFW_KEY_A:             return 0;
+        case GLFW_KEY_S:             return 1;
+        case GLFW_KEY_D:             return 2;
+        case GLFW_KEY_F:             return 3;
+        case GLFW_KEY_H:             return 4;
+        case GLFW_KEY_G:             return 5;
+        case GLFW_KEY_Z:             return 6;
+        case GLFW_KEY_X:             return 7;
+        case GLFW_KEY_C:             return 8;
+        case GLFW_KEY_V:             return 9;
+        case GLFW_KEY_GRAVE_ACCENT:  return 10;
+        case GLFW_KEY_B:             return 11;
+        case GLFW_KEY_Q:             return 12;
+        case GLFW_KEY_W:             return 13;
+        case GLFW_KEY_E:             return 14;
+        case GLFW_KEY_R:             return 15;
+        case GLFW_KEY_Y:             return 16;
+        case GLFW_KEY_T:             return 17;
+        case GLFW_KEY_1:             return 18;
+        case GLFW_KEY_2:             return 19;
+        case GLFW_KEY_3:             return 20;
+        case GLFW_KEY_4:             return 21;
+        case GLFW_KEY_6:             return 22;
+        case GLFW_KEY_5:             return 23;
+        case GLFW_KEY_EQUAL:         return 24;
+        case GLFW_KEY_9:             return 25;
+        case GLFW_KEY_7:             return 26;
+        case GLFW_KEY_MINUS:         return 27;
+        case GLFW_KEY_8:             return 28;
+        case GLFW_KEY_0:             return 29;
+        case GLFW_KEY_RIGHT_BRACKET: return 30;
+        case GLFW_KEY_O:             return 31;
+        case GLFW_KEY_U:             return 32;
+        case GLFW_KEY_LEFT_BRACKET:  return 33;
+        case GLFW_KEY_I:             return 34;
+        case GLFW_KEY_P:             return 35;
+        case GLFW_KEY_ENTER:         return 36;
+        case GLFW_KEY_L:             return 37;
+        case GLFW_KEY_J:             return 38;
+        case GLFW_KEY_APOSTROPHE:    return 39;
+        case GLFW_KEY_K:             return 40;
+        case GLFW_KEY_SEMICOLON:     return 41;
+        case GLFW_KEY_BACKSLASH:     return 42;
+        case GLFW_KEY_COMMA:         return 43;
+        case GLFW_KEY_SLASH:         return 44;
+        case GLFW_KEY_N:             return 45;
+        case GLFW_KEY_M:             return 46;
+        case GLFW_KEY_PERIOD:        return 47;
+        case GLFW_KEY_TAB:           return 48;
+        case GLFW_KEY_SPACE:         return 49;
+        case GLFW_KEY_WORLD_1:       return 50;
+    }
+
+    return 0;
+}
+
 
 //------------------------------------------------------------------------
 // Delegate for window related notifications
@@ -1124,62 +1186,7 @@ const char* _glfwPlatformGetKeyName(int key)
     _glfw.ns.keyName = 0;
 
     // Try to translate virtual key mac os x style
-    UInt16 vKey = 0;
-    switch(key)
-    {
-        case GLFW_KEY_A:             vKey =  0; break;
-        case GLFW_KEY_S:             vKey =  1; break;
-        case GLFW_KEY_D:             vKey =  2; break;
-        case GLFW_KEY_F:             vKey =  3; break;
-        case GLFW_KEY_H:             vKey =  4; break;
-        case GLFW_KEY_G:             vKey =  5; break;
-        case GLFW_KEY_Z:             vKey =  6; break;
-        case GLFW_KEY_X:             vKey =  7; break;
-        case GLFW_KEY_C:             vKey =  8; break;
-        case GLFW_KEY_V:             vKey =  9; break;
-        case GLFW_KEY_GRAVE_ACCENT:  vKey = 10; break;
-        case GLFW_KEY_B:             vKey = 11; break;
-        case GLFW_KEY_Q:             vKey = 12; break;
-        case GLFW_KEY_W:             vKey = 13; break;
-        case GLFW_KEY_E:             vKey = 14; break;
-        case GLFW_KEY_R:             vKey = 15; break;
-        case GLFW_KEY_Y:             vKey = 16; break;
-        case GLFW_KEY_T:             vKey = 17; break;
-        case GLFW_KEY_1:             vKey = 18; break;
-        case GLFW_KEY_2:             vKey = 19; break;
-        case GLFW_KEY_3:             vKey = 20; break;
-        case GLFW_KEY_4:             vKey = 21; break;
-        case GLFW_KEY_6:             vKey = 22; break;
-        case GLFW_KEY_5:             vKey = 23; break;
-        case GLFW_KEY_EQUAL:         vKey = 24; break;
-        case GLFW_KEY_9:             vKey = 25; break;
-        case GLFW_KEY_7:             vKey = 26; break;
-        case GLFW_KEY_MINUS:         vKey = 27; break;
-        case GLFW_KEY_8:             vKey = 28; break;
-        case GLFW_KEY_0:             vKey = 29; break;
-        case GLFW_KEY_RIGHT_BRACKET: vKey = 30; break;
-        case GLFW_KEY_O:             vKey = 31; break;
-        case GLFW_KEY_U:             vKey = 32; break;
-        case GLFW_KEY_LEFT_BRACKET:  vKey = 33; break;
-        case GLFW_KEY_I:             vKey = 34; break;
-        case GLFW_KEY_P:             vKey = 35; break;
-        case GLFW_KEY_ENTER:         vKey = 36; break;
-        case GLFW_KEY_L:             vKey = 37; break;
-        case GLFW_KEY_J:             vKey = 38; break;
-        case GLFW_KEY_APOSTROPHE:    vKey = 39; break;
-        case GLFW_KEY_K:             vKey = 40; break;
-        case GLFW_KEY_SEMICOLON:     vKey = 41; break;
-        case GLFW_KEY_BACKSLASH:     vKey = 42; break;
-        case GLFW_KEY_COMMA:         vKey = 43; break;
-        case GLFW_KEY_SLASH:         vKey = 44; break;
-        case GLFW_KEY_N:             vKey = 45; break;
-        case GLFW_KEY_M:             vKey = 46; break;
-        case GLFW_KEY_PERIOD:        vKey = 47; break;
-        case GLFW_KEY_TAB:           vKey = 48; break;
-        case GLFW_KEY_SPACE:         vKey = 49; break;
-        case GLFW_KEY_WORLD_1:       vKey = 50; break;
-    }
-
+    const UInt16 vKey = virtualKeyFor(key);
     if (vKey)
     {
         // get the current keyboard, need to do this every time
