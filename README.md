@@ -91,6 +91,8 @@ The following dependencies are needed by the examples and test programs:
  - [X11] Bugfix: Window frame interactions were reported as focus events
  - [X11] Bugfix: Workaround for legacy Compiz caused flickering during resize
  - [X11] Bugfix: The name pointer of joysticks were not cleared on disconnection
+ - [X11] Bugfix: Joysticks connected after `glfwInit` were not detected
+                 (temporary inotify solution until proper libudev solution)
 
 
 ## Contact

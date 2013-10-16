@@ -683,8 +683,10 @@ int _glfwPlatformInit(void)
     if (!_glfwInitContextAPI())
         return GL_FALSE;
 
+    if (!_glfwInitJoysticks())
+        return GL_FALSE;
+
     _glfwInitTimer();
-    _glfwInitJoysticks();
     _glfwInitGammaRamp();
 
     return GL_TRUE;
