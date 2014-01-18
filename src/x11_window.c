@@ -459,6 +459,16 @@ static void restoreCursor(_GLFWwindow* window)
         XUndefineCursor(_glfw.x11.display, window->x11.handle);
 }
 
+// Capture the mouse cursor
+//
+static void captureCursor(_GLFWwindow* window)
+{
+    XGrabPointer(_glfw.x11.display, window->x11.handle, True,
+                 ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                 GrabModeAsync, GrabModeAsync,
+                 window->x11.handle, None, CurrentTime);
+}
+
 // Enter fullscreen mode
 //
 static void enterFullscreenMode(_GLFWwindow* window)
@@ -943,6 +953,8 @@ static void processEvent(XEvent *event)
 
                 if (window->cursorMode == GLFW_CURSOR_DISABLED)
                     disableCursor(window);
+                else if (window->cursorMode == GLFW_CURSOR_CAPTURED)
+                    captureCursor(window);
             }
 
             break;
@@ -954,8 +966,11 @@ static void processEvent(XEvent *event)
             {
                 _glfwInputWindowFocus(window, GL_FALSE);
 
-                if (window->cursorMode == GLFW_CURSOR_DISABLED)
+                if (window->cursorMode == GLFW_CURSOR_DISABLED ||
+                    window->cursorMode == GLFW_CURSOR_CAPTURED)
+                {
                     restoreCursor(window);
+                }
             }
 
             break;
@@ -1446,6 +1461,9 @@ void _glfwPlatformApplyCursorMode(_GLFWwindow* window)
             break;
         case GLFW_CURSOR_DISABLED:
             disableCursor(window);
+            break;
+        case GLFW_CURSOR_CAPTURED:
+            captureCursor(window);
             break;
     }
 }
