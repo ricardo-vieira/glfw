@@ -67,6 +67,7 @@ The following dependencies are needed by the examples and test programs:
    iconify (and restore the previous video mode) on focus loss
  - Added `GLFW_DOUBLEBUFFER` for controlling whether to use double buffering
  - Added `GLFW_INCLUDE_ES31` for including the OpenGL ES 3.1 header
+ - Added `GLFW_FLOATING` for creating always-on-top windowed mode windows
  - Added *partial and experimental* support for Wayland
  - Changed `glfwGetCursorPos` to query the system directly for all cursor modes
    except disabled mode

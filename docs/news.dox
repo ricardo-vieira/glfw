@@ -59,6 +59,12 @@ glfwGetCursorPos instead of returning cached data, except for when the window is
 in disabled cursor mode.
 
 
+@subsection news_31_floating Floating windows
+
+GLFW not supports floating windows, also called topmost or always on top, for
+easier debugging, with the `GLFW_FLOATING` window hint.
+
+
 @section news_30 New features in version 3.0
 
 @subsection news_30_cmake CMake build system

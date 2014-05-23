@@ -167,6 +167,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     wndconfig.visible       = _glfw.hints.visible ? GL_TRUE : GL_FALSE;
     wndconfig.decorated     = _glfw.hints.decorated ? GL_TRUE : GL_FALSE;
     wndconfig.polite        = _glfw.hints.polite ? GL_TRUE : GL_FALSE;
+    wndconfig.floating      = _glfw.hints.floating ? GL_TRUE : GL_FALSE;
     wndconfig.monitor       = (_GLFWmonitor*) monitor;
 
     // Set up desired context config
@@ -205,6 +206,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     window->resizable  = wndconfig.resizable;
     window->decorated  = wndconfig.decorated;
     window->polite     = wndconfig.polite;
+    window->floating   = wndconfig.floating;
     window->cursorMode = GLFW_CURSOR_NORMAL;
 
     // Save the currently current context so it can be restored later
@@ -266,6 +268,7 @@ void glfwDefaultWindowHints(void)
     _glfw.hints.visible   = GL_TRUE;
     _glfw.hints.decorated = GL_TRUE;
     _glfw.hints.polite    = GL_TRUE;
+    _glfw.hints.floating  = GL_FALSE;
 
     // The default is 24 bits of color, 24 bits of depth and 8 bits of stencil,
     // double buffered
@@ -334,6 +337,9 @@ GLFWAPI void glfwWindowHint(int target, int hint)
             break;
         case GLFW_ICONIFY_DEFOCUSED:
             _glfw.hints.polite = hint;
+            break;
+        case GLFW_FLOATING:
+            _glfw.hints.floating = hint;
             break;
         case GLFW_VISIBLE:
             _glfw.hints.visible = hint;
@@ -600,6 +606,8 @@ GLFWAPI int glfwGetWindowAttrib(GLFWwindow* handle, int attrib)
             return window->resizable;
         case GLFW_DECORATED:
             return window->decorated;
+        case GLFW_FLOATING:
+            return window->floating;
         case GLFW_VISIBLE:
             return window->visible;
         case GLFW_CLIENT_API:
