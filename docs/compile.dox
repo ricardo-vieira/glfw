@@ -117,7 +117,7 @@ argument.
 If you are using the GUI version, choose the root of the GLFW source tree as
 source location and the same directory or another, empty directory as the
 destination for binaries.  Choose *Configure*, change any options you wish to,
-*Configure* again to let the changes take effect and then *Generate*.
+and *Configure* again to let the changes take effect and then *Generate*.
 
 
 @section compile_options CMake options
