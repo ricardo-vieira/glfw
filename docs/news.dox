@@ -61,7 +61,7 @@ in disabled cursor mode.
 
 @subsection news_31_floating Floating windows
 
-GLFW not supports floating windows, also called topmost or always on top, for
+GLFW now supports floating windows, also called topmost or always on top, for
 easier debugging, with the `GLFW_FLOATING` window hint.
 
 
