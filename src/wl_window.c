@@ -309,6 +309,11 @@ void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
 
     window->wl.currentCursor = cursor;
 
+    // If we're not in the correct window just save the cursor
+    // the next time the pointer enters the window the cursor will change
+    if (window != _glfw.wl.pointerFocus)
+        return;
+
     if (window->cursorMode == GLFW_CURSOR_NORMAL)
     {
         if (cursor == NULL)

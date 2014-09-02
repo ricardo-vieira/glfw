@@ -47,9 +47,9 @@ static void pointerHandleEnter(void* data,
     _GLFWwindow* window = wl_surface_get_user_data(surface);
 
     _glfw.wl.pointerSerial = serial;
-    _glfwPlatformSetCursor(window, window->wl.currentCursor);
-
     _glfw.wl.pointerFocus = window;
+
+    _glfwPlatformSetCursor(window, window->wl.currentCursor);
     _glfwInputCursorEnter(window, GL_TRUE);
 }
 
