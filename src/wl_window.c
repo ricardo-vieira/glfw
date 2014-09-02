@@ -30,6 +30,7 @@
 #include <poll.h>
 #include <GL/gl.h>
 #include <wayland-egl.h>
+#include <wayland-cursor.h>
 
 
 static void handlePing(void* data,
@@ -121,6 +122,8 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
     {
         wl_shell_surface_set_toplevel(window->wl.shell_surface);
     }
+
+    window->wl.currentCursor = NULL;
 
     return GL_TRUE;
 }
@@ -279,19 +282,7 @@ void _glfwPlatformSetCursorPos(_GLFWwindow* window, double x, double y)
 
 void _glfwPlatformApplyCursorMode(_GLFWwindow* window)
 {
-    fprintf(stderr, "_glfwPlatformApplyCursorMode not implemented yet\n");
-    switch (window->cursorMode)
-    {
-        case GLFW_CURSOR_NORMAL:
-            // TODO: enable showing cursor
-            break;
-        case GLFW_CURSOR_HIDDEN:
-            // TODO: enable not showing cursor
-            break;
-        case GLFW_CURSOR_DISABLED:
-            // TODO: enable pointer lock and hide cursor
-            break;
-    }
+    _glfwPlatformSetCursor(window, window->wl.currentCursor);
 }
 
 int _glfwPlatformCreateCursor(_GLFWcursor* cursor,
@@ -309,6 +300,40 @@ void _glfwPlatformDestroyCursor(_GLFWcursor* cursor)
 
 void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
 {
-    fprintf(stderr, "_glfwPlatformSetCursor not implemented yet\n");
+    struct wl_buffer *buffer;
+    struct wl_cursor_image *image;
+    struct wl_surface *surface = _glfw.wl.cursorSurface;
+
+    if (!_glfw.wl.pointer)
+        return;
+
+    window->wl.currentCursor = cursor;
+
+    if (window->cursorMode == GLFW_CURSOR_NORMAL)
+    {
+        if (cursor == NULL)
+        {
+            image = _glfw.wl.defaultCursor->images[0];
+            buffer = wl_cursor_image_get_buffer(image);
+            if (!buffer)
+                return;
+            wl_pointer_set_cursor(_glfw.wl.pointer, _glfw.wl.pointerSerial,
+                        surface,
+                        image->hotspot_x,
+                        image->hotspot_y);
+            wl_surface_attach(surface, buffer, 0, 0);
+            wl_surface_damage(surface, 0, 0,
+                        image->width, image->height);
+            wl_surface_commit(surface);
+        }
+        else
+        {
+            fprintf(stderr, "_glfwPlatformSetCursor not implemented yet\n");
+        }
+    }
+    else /* Cursor is hidden set cursor surface to NULL */
+    {
+        wl_pointer_set_cursor(_glfw.wl.pointer, _glfw.wl.pointerSerial, NULL, 0, 0);
+    }
 }
 
