@@ -27,6 +27,12 @@
 #include "internal.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 #include <poll.h>
 #include <GL/gl.h>
 #include <wayland-egl.h>
@@ -94,6 +100,105 @@ static GLboolean createSurface(_GLFWwindow* window,
     return GL_TRUE;
 }
 
+static int
+set_cloexec_or_close(int fd)
+{
+    long flags;
+
+    if (fd == -1)
+        return -1;
+
+    flags = fcntl(fd, F_GETFD);
+    if (flags == -1)
+        goto err;
+
+    if (fcntl(fd, F_SETFD, flags | FD_CLOEXEC) == -1)
+        goto err;
+
+    return fd;
+
+err:
+    close(fd);
+    return -1;
+}
+
+static int
+create_tmpfile_cloexec(char *tmpname)
+{
+    int fd;
+
+#ifdef HAVE_MKOSTEMP
+    fd = mkostemp(tmpname, O_CLOEXEC);
+    if (fd >= 0)
+        unlink(tmpname);
+#else
+    fd = mkstemp(tmpname);
+    if (fd >= 0) {
+        fd = set_cloexec_or_close(fd);
+        unlink(tmpname);
+    }
+#endif
+
+    return fd;
+}
+
+/*
+ * Create a new, unique, anonymous file of the given size, and
+ * return the file descriptor for it. The file descriptor is set
+ * CLOEXEC. The file is immediately suitable for mmap()'ing
+ * the given size at offset zero.
+ *
+ * The file should not have a permanent backing store like a disk,
+ * but may have if XDG_RUNTIME_DIR is not properly implemented in OS.
+ *
+ * The file name is deleted from the file system.
+ *
+ * The file is suitable for buffer sharing between processes by
+ * transmitting the file descriptor over Unix sockets using the
+ * SCM_RIGHTS methods.
+ *
+ * If the C library implements posix_fallocate(), it is used to
+ * guarantee that disk space is available for the file at the
+ * given size. If disk space is insufficent, errno is set to ENOSPC.
+ * If posix_fallocate() is not supported, program may receive
+ * SIGBUS on accessing mmap()'ed file contents instead.
+ */
+int
+os_create_anonymous_file(off_t size)
+{
+    static const char template[] = "/glfw-shared-XXXXXX";
+    const char *path;
+    char *name;
+    int fd;
+    int ret;
+
+    path = getenv("XDG_RUNTIME_DIR");
+    if (!path) {
+        errno = ENOENT;
+        return -1;
+    }
+
+    name = malloc(strlen(path) + sizeof(template));
+    if (!name)
+        return -1;
+
+    strcpy(name, path);
+    strcat(name, template);
+
+    fd = create_tmpfile_cloexec(name);
+
+    free(name);
+
+    if (fd < 0)
+        return -1;
+    ret = posix_fallocate(fd, 0, size);
+    if (ret != 0) {
+        close(fd);
+        errno = ret;
+        return -1;
+    }
+    return fd;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
@@ -289,13 +394,50 @@ int _glfwPlatformCreateCursor(_GLFWcursor* cursor,
                               const GLFWimage* image,
                               int xhot, int yhot)
 {
-    fprintf(stderr, "_glfwPlatformCreateCursor not implemented yet\n");
-    return GL_FALSE;
+    struct wl_shm_pool *pool;
+    int stride = image->width * 4;
+    int length = image->width * image->height * 4;
+    void *data;
+    int fd;
+
+    fd = os_create_anonymous_file(length);
+    if (fd < 0) {
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                    "Wayland: Creating a buffer file for %d B failed: %m\n",
+                    length);
+        return GL_FALSE;
+    }
+
+    data = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (data == MAP_FAILED) {
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                    "Wayland: Cursor mmap failed: %m\n");
+        close(fd);
+        return GL_FALSE;
+    }
+
+    pool = wl_shm_create_pool(_glfw.wl.shm, fd, length);
+
+    close(fd);
+    memcpy(data, image->pixels, length);
+
+    cursor->wl.buffer = wl_shm_pool_create_buffer(pool, 0,
+                    image->width,
+                    image->height,
+                    stride, WL_SHM_FORMAT_ARGB8888);
+    munmap(data, length);
+    wl_shm_pool_destroy(pool);
+
+    cursor->wl.width = image->width;
+    cursor->wl.height = image->height;
+    cursor->wl.xhot = xhot;
+    cursor->wl.yhot = yhot;
+    return GL_TRUE;
 }
 
 void _glfwPlatformDestroyCursor(_GLFWcursor* cursor)
 {
-    fprintf(stderr, "_glfwPlatformDestroyCursor not implemented yet\n");
+    wl_buffer_destroy(cursor->wl.buffer);
 }
 
 void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
@@ -333,7 +475,14 @@ void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
         }
         else
         {
-            fprintf(stderr, "_glfwPlatformSetCursor not implemented yet\n");
+            wl_pointer_set_cursor(_glfw.wl.pointer, _glfw.wl.pointerSerial,
+                        surface,
+                        cursor->wl.xhot,
+                        cursor->wl.yhot);
+            wl_surface_attach(surface, cursor->wl.buffer, 0, 0);
+            wl_surface_damage(surface, 0, 0,
+                        cursor->wl.width, cursor->wl.height);
+            wl_surface_commit(surface);
         }
     }
     else /* Cursor is hidden set cursor surface to NULL */

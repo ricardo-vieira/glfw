@@ -114,7 +114,9 @@ typedef struct _GLFWmonitorWayland
 
 typedef struct _GLFWcursorWayland
 {
-    int                         dummy;
+    struct wl_buffer*           buffer;
+    int                         width, height;
+    int                         xhot, yhot;
 } _GLFWcursorWayland;
 
 
