@@ -31,10 +31,10 @@ elseif (_GLFW_X11)
                      posix_tls.c)
 elseif (_GLFW_WAYLAND)
     set(glfw_HEADERS ${common_HEADERS} wl_platform.h linux_joystick.h
-                     posix_time.h posix_tls.h xkb_unicode.h)
+                     posix_time.h posix_tls.h xkb_unicode.h xdg-shell-client-protocol.h)
     set(glfw_SOURCES ${common_SOURCES} wl_clipboard.c wl_init.c wl_monitor.c
                      wl_window.c linux_joystick.c posix_time.c posix_tls.c
-                     xkb_unicode.c)
+                     xkb_unicode.c xdg-shell-protocol.c)
 endif()
 
 if (_GLFW_EGL)

@@ -30,6 +30,7 @@
 
 #include <wayland-client.h>
 #include <xkbcommon/xkbcommon.h>
+#include "xdg-shell-client-protocol.h"
 
 #if defined(_GLFW_EGL)
  #include "egl_context.h"
@@ -58,7 +59,7 @@ typedef struct _GLFWwindowWayland
     GLboolean                   visible;
     struct wl_surface*          surface;
     struct wl_egl_window*       native;
-    struct wl_shell_surface*    shell_surface;
+    struct xdg_surface*         xdgSurface;
     EGLSurface                  egl_surface;
     struct wl_callback*         callback;
     _GLFWcursor*                currentCursor;
@@ -69,7 +70,7 @@ typedef struct _GLFWlibraryWayland
     struct wl_display*          display;
     struct wl_registry*         registry;
     struct wl_compositor*       compositor;
-    struct wl_shell*            shell;
+    struct xdg_shell*           xdgShell;
     struct wl_shm*              shm;
     struct wl_seat*             seat;
     struct wl_pointer*          pointer;

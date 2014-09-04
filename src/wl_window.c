@@ -38,36 +38,36 @@
 #include <wayland-egl.h>
 #include <wayland-cursor.h>
 
-
-static void handlePing(void* data,
-                       struct wl_shell_surface* shellSurface,
-                       uint32_t serial)
-{
-    wl_shell_surface_pong(shellSurface, serial);
-}
-
-static void handleConfigure(void* data,
-                            struct wl_shell_surface* shellSurface,
-                            uint32_t edges,
-                            int32_t width,
-                            int32_t height)
+static void
+xdg_surface_configure (void               *data,
+                       struct xdg_surface *xdg_surface,
+                       int32_t             width,
+                       int32_t             height,
+                       struct wl_array    *states,
+                       uint32_t            serial)
 {
     _GLFWwindow* window = data;
-    _glfwInputFramebufferSize(window, width, height);
-    _glfwInputWindowSize(window, width, height);
-    _glfwPlatformSetWindowSize(window, width, height);
-    _glfwInputWindowDamage(window);
+
+    if (width > 0 && height > 0){
+        _glfwInputFramebufferSize(window, width, height);
+        _glfwInputWindowSize(window, width, height);
+        _glfwPlatformSetWindowSize(window, width, height);
+        _glfwInputWindowDamage(window);
+    }
+    xdg_surface_ack_configure (xdg_surface, serial);
 }
 
-static void handlePopupDone(void* data,
-                            struct wl_shell_surface* shellSurface)
+static void
+xdg_surface_close (void *data,
+                   struct xdg_surface *xdg_surface)
 {
+    _GLFWwindow* window = data;
+    _glfwInputWindowCloseRequest(window);
 }
 
-static const struct wl_shell_surface_listener shellSurfaceListener = {
-    handlePing,
-    handleConfigure,
-    handlePopupDone
+static const struct xdg_surface_listener xdg_surface_listener = {
+    xdg_surface_configure,
+    xdg_surface_close,
 };
 
 static GLboolean createSurface(_GLFWwindow* window,
@@ -85,14 +85,10 @@ static GLboolean createSurface(_GLFWwindow* window,
     if (!window->wl.native)
         return GL_FALSE;
 
-    window->wl.shell_surface = wl_shell_get_shell_surface(_glfw.wl.shell,
-                                                          window->wl.surface);
-    if (!window->wl.shell_surface)
+    window->wl.xdgSurface = xdg_shell_get_xdg_surface(_glfw.wl.xdgShell, window->wl.surface);
+    if (!window->wl.xdgSurface)
         return GL_FALSE;
-
-    wl_shell_surface_add_listener(window->wl.shell_surface,
-                                  &shellSurfaceListener,
-                                  window);
+    xdg_surface_add_listener(window->wl.xdgSurface, &xdg_surface_listener, window);
 
     window->wl.width = wndconfig->width;
     window->wl.height = wndconfig->height;
@@ -217,15 +213,9 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
 
     if (wndconfig->monitor)
     {
-        wl_shell_surface_set_fullscreen(
-            window->wl.shell_surface,
-            WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT,
-            0,
+        xdg_surface_set_fullscreen(
+            window->wl.xdgSurface,
             wndconfig->monitor->wl.output);
-    }
-    else
-    {
-        wl_shell_surface_set_toplevel(window->wl.shell_surface);
     }
 
     window->wl.currentCursor = NULL;
@@ -251,8 +241,8 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window)
     if (window->wl.native)
         wl_egl_window_destroy(window->wl.native);
 
-    if (window->wl.shell_surface)
-        wl_shell_surface_destroy(window->wl.shell_surface);
+    if (window->wl.xdgSurface)
+        xdg_surface_destroy(window->wl.xdgSurface);
 
     if (window->wl.surface)
         wl_surface_destroy(window->wl.surface);
@@ -260,7 +250,7 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window)
 
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title)
 {
-    wl_shell_surface_set_title(window->wl.shell_surface, title);
+    xdg_surface_set_title(window->wl.xdgSurface, title);
 }
 
 void _glfwPlatformGetWindowPos(_GLFWwindow* window, int* xpos, int* ypos)
@@ -310,25 +300,20 @@ void _glfwPlatformGetWindowFrameSize(_GLFWwindow* window,
 
 void _glfwPlatformIconifyWindow(_GLFWwindow* window)
 {
-    // TODO
-    fprintf(stderr, "_glfwPlatformIconifyWindow not implemented yet\n");
+    xdg_surface_set_minimized(window->wl.xdgSurface);
 }
 
 void _glfwPlatformRestoreWindow(_GLFWwindow* window)
 {
-    // TODO
-    fprintf(stderr, "_glfwPlatformRestoreWindow not implemented yet\n");
+    xdg_surface_unset_maximized(window->wl.xdgSurface);
 }
 
 void _glfwPlatformShowWindow(_GLFWwindow* window)
 {
-    wl_shell_surface_set_toplevel(window->wl.shell_surface);
 }
 
 void _glfwPlatformHideWindow(_GLFWwindow* window)
 {
-    wl_surface_attach(window->wl.surface, NULL, 0, 0);
-    wl_surface_commit(window->wl.surface);
 }
 
 void _glfwPlatformPollEvents(void)

@@ -484,6 +484,18 @@ static const struct wl_seat_listener seatListener = {
     seatHandleCapabilities
 };
 
+static void
+xdg_shell_ping(void             *data,
+                struct xdg_shell *xdg_shell,
+                uint32_t          serial)
+{
+  xdg_shell_pong (xdg_shell, serial);
+}
+
+static const struct xdg_shell_listener xdg_shell_listener = {
+  xdg_shell_ping,
+};
+
 static void registryHandleGlobal(void* data,
                                  struct wl_registry* registry,
                                  uint32_t name,
@@ -500,10 +512,12 @@ static void registryHandleGlobal(void* data,
         _glfw.wl.shm =
             wl_registry_bind(registry, name, &wl_shm_interface, 1);
     }
-    else if (strcmp(interface, "wl_shell") == 0)
+    else if (strcmp(interface, "xdg_shell") == 0)
     {
-        _glfw.wl.shell =
-            wl_registry_bind(registry, name, &wl_shell_interface, 1);
+        _glfw.wl.xdgShell =
+            wl_registry_bind(registry, name, &xdg_shell_interface, 1);
+        xdg_shell_use_unstable_version(_glfw.wl.xdgShell, XDG_SHELL_VERSION_CURRENT);
+        xdg_shell_add_listener(_glfw.wl.xdgShell, &xdg_shell_listener, NULL);
     }
     else if (strcmp(interface, "wl_output") == 0)
     {
